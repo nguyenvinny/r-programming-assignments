@@ -1,0 +1,83 @@
+> # Load Dataset
+> data("satgpa", package="openintro")
+> head(satgpa)
+# A tibble: 6 × 6
+    sex sat_v sat_m sat_sum hs_gpa fy_gpa
+  <int> <int> <int>   <int>  <dbl>  <dbl>
+1     1    65    62     127   3.4    3.18
+2     2    58    64     122   4      3.33
+3     2    56    60     116   3.75   3.25
+4     1    42    53      95   3.75   2.42
+5     1    55    52     107   4      2.63
+6     2    55    56     111   4      2.91
+> 
+> #1.Base R Graphics
+> # Scatter Plot
+> plot(satgpa$sat_sum, satgpa$fy_gpa,
++      main="SAT Score vs. 1st Year GPA",
++      xlab="SAT Score",
++      ylab="1st Year GPA",
++      col="steelblue",
++      las=1)
+> # Histogram
+> hist(satgpa$hs_gpa,
++      main="Distribution of High School GPA",
++      xlab="Highschool GPA",
++      breaks=20,
++      col="steelblue",
++      border="white",
++      las=1)
+> 
+> #2.Lattice Graphics
+> library(lattice)
+> satgpa$sex_label <- factor(satgpa$sex, levels = c(1, 2), labels = c("Male", "Female"))
+> # Conditional scatter plot (small multiples)
+> xyplot(fy_gpa ~ sat_sum | factor(sex_label),
++        data=satgpa,
++        main="1st Year GPA vs. SAT Score by Sex",
++        xlab="SAT Score",
++        ylab="1st Year GPA",
++        pch    = 19,
++        alpha  = 0.4,
++        layout = c(2, 1),
++        type   = c("p", "r", "g"),
++        groups=sex_label,
++        par.settings = list(
++          superpose.symbol = list(col = c("steelblue", "firebrick"), pch = 19),
++          superpose.line   = list(col = c("steelblue", "firebrick"))
++        ))
+> # Box-and-whisker plot
+> bwplot(hs_gpa ~ factor(sex_label),
++        data=satgpa,
++        main="High School GPA by Sex",
++        xlab="Sex",
++        ylab="High School GPA",
++        pch    = "|",
++        fill   = "steelblue",
++        par.settings = list(box.rectangle = list(col = "black"),
++                            box.umbrella  = list(col = "black")))
+> 
+> #3.ggplot2
+> library(ggplot2)
+> # Scatter plot with smoothing
+> ggplot(satgpa, aes(x=sat_sum, y=fy_gpa, color=factor(sex_label))) +
++   geom_point(alpha=0.4) +
++   geom_smooth(method="lm") +
++   labs(title="1st Year GPA vs. SAT Score with trend by Sex",
++        x="SAT Score",
++        y="1st Year GPA",
++        color="Sex") +
++   theme_minimal() +
++   scale_color_manual(values = c("Male" = "steelblue", "Female" = "firebrick"))
+`geom_smooth()` using formula = 'y ~ x'
+> # Faceted histogram
+> ggplot(satgpa, aes(x=hs_gpa, fill=sex_label)) +
++   geom_histogram(binwidth=0.25, color="white") +
++   facet_wrap(~ sex_label) +
++   labs(title="High School GPA distribution by Sex",
++        x = "High School GPA",
++        y = "Number of Students") +
++   theme_minimal() +
++   theme(legend.position="none") +
++   scale_fill_manual(values = c("Male" = "steelblue", "Female" = "firebrick"))
+>
